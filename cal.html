@@ -8,6 +8,18 @@
 
 
 <body>
+  <!-- Load the login checker FIRST -->
+<script src="auth.js"></script>
+
+<!-- Now call it -->
+<script>
+  checkLoginStatus(); // This will only run if auth.js loaded successfully
+</script>
+
+<!-- Then load your other scripts -->
+<script src="cal.js"></script>
+
+  
    <button id="themeToggle" class="theme-toggle" title="Toggle Theme">🌙</button>
   <div class="container">
     <h1>OpenDeSci Strategy</h1>
