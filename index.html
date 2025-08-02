@@ -126,6 +126,11 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
     alert("❌ Incorrect login details.");
   }
 });
+
+
+  localStorage.setItem("loggedIn", "true");
+localStorage.setItem("loginTime", Date.now().toString());
+window.location.href = "cal.html"; // Redirect to the calendar
   </script>
 </body>
 </html>
