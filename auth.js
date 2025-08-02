@@ -1,29 +1,33 @@
-// auth.js
+const MAX_SESSION_MINUTES = 0.083;
 
-const MAX_SESSION_MINUTES = 20;
-
-// Call this in cal.html to check login before showing the page
 function checkLoginStatus(redirectIfInvalid = true) {
-  const isLoggedIn = localStorage.getItem("loggedIn");
-  const loginTime = localStorage.getItem("loginTime");
+  try {
+    const isLoggedIn = localStorage.getItem("loggedIn");
+    const loginTime = localStorage.getItem("loginTime");
 
-  if (isLoggedIn && loginTime) {
-    const now = new Date().getTime();
-    const minutesPassed = (now - parseInt(loginTime)) / (1000 * 60);
+    if (isLoggedIn && loginTime) {
+      const now = new Date().getTime();
+      const minutesPassed = (now - parseInt(loginTime)) / (1000 * 60);
 
-    if (minutesPassed >= MAX_SESSION_MINUTES) {
-      logout();
-      if (redirectIfInvalid) {
-        alert("⏰ Session expired. Please log in again.");
-        window.location.href = "index.html";
+      if (minutesPassed >= MAX_SESSION_MINUTES) {
+        logout();
+        if (redirectIfInvalid) {
+          alert("⏰ Session expired. Please log in again.");
+          window.location.href = "index.html";
+        }
+      } else {
+        // Check again every 1 minute
+        setTimeout(() => {
+          checkLoginStatus();
+        }, 60000);
       }
     } else {
-      // Still logged in, so check every minute if it has expired
-      setTimeout(() => {
-        checkLoginStatus();
-      }, 60000); // 60,000 ms = 1 minute
+      if (redirectIfInvalid) {
+        window.location.href = "index.html";
+      }
     }
-  } else {
+  } catch (e) {
+    console.error("Login check failed:", e);
     if (redirectIfInvalid) {
       window.location.href = "index.html";
     }
