@@ -65,52 +65,52 @@
 <body>
   <div class="login-container">
     <h2>🔐 Login</h2>
-    <div class="error" id="errorMessage"></div>
-    <input type="text" id="username" placeholder="Username" />
-    <input type="password" id="password" placeholder="Password" />
-    <label class="checkbox-label">
-      <input type="checkbox" onclick="togglePassword()"> Show Password
-    </label>
-    <button onclick="checkLogin()">Login</button>
+    <form id="loginForm">
+      <div class="error" id="errorMessage"></div>
+      <input type="text" id="username" placeholder="Username" />
+      <input type="password" id="password" placeholder="Password" />
+      <label class="checkbox-label">
+        <input type="checkbox" onclick="togglePassword()"> Show Password
+      </label>
+      <button type="submit">Login</button>
+    </form>
   </div>
 
-
   <script>
-  // 🔒 Disable right-click and inspect shortcuts
-  document.onkeydown = function (e) {
-    if (
-      e.keyCode === 123 || // F12
-      (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
-      (e.ctrlKey && e.keyCode === 85) // Ctrl+U
-    ) {
-      return false;
+    // 🔒 Disable inspect shortcuts
+    document.onkeydown = function (e) {
+      if (
+        e.keyCode === 123 || // F12
+        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
+        (e.ctrlKey && e.keyCode === 85) // Ctrl+U
+      ) {
+        return false;
+      }
+    };
+
+    function togglePassword() {
+      const passwordInput = document.getElementById("password");
+      passwordInput.type = passwordInput.type === "password" ? "text" : "password";
     }
-  };
 
-  function togglePassword() {
-    const passwordInput = document.getElementById("password");
-    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
-  }
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+      e.preventDefault();
 
-  document.getElementById("loginForm").addEventListener("submit", function (e) {
-    e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorMessage = document.getElementById("errorMessage");
 
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const errorMessage = document.getElementById("errorMessage");
+      const validUsername = "admin";
+      const validPassword = "1234";
 
-    const validUsername = "admin";
-    const validPassword = "1234";
-
-    if (username === validUsername && password === validPassword) {
-      // Save login status
-      localStorage.setItem("loggedIn", "true");
-      localStorage.setItem("loginTime", Date.now().toString());
-      window.location.href = "cal.html"; // Redirect
-    } else {
-      errorMessage.textContent = "❌ Incorrect username or password!";
-    }
-  });
+      if (username === validUsername && password === validPassword) {
+        localStorage.setItem("loggedIn", "true");
+        localStorage.setItem("loginTime", Date.now().toString());
+        window.location.href = "cal.html"; // Go to calendar
+      } else {
+        errorMessage.textContent = "❌ Incorrect username or password!";
+      }
+    });
   </script>
 </body>
 </html>
