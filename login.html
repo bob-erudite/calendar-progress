@@ -108,6 +108,24 @@
         errorMessage.textContent = "Incorrect username or password!";
       }
     }
+
+    // login.js
+
+document.getElementById("loginForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  // Example login check
+  if (username === "admin" && password === "1234") {
+    localStorage.setItem("loggedIn", "true");
+    localStorage.setItem("loginTime", new Date().getTime());
+    window.location.href = "cal.html"; // redirect to calendar
+  } else {
+    alert("❌ Incorrect login details.");
+  }
+});
   </script>
 </body>
 </html>
