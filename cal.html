@@ -9,7 +9,12 @@
 
 <body>
 
-<script src="auth.js"></script>
+<script>
+  if (localStorage.getItem('isLoggedIn') !== 'true') {
+    alert('You must login first!');
+    window.location.href = 'login.html'; // redirect to login
+  }
+</script>
   
     <button id="themeToggle" class="theme-toggle" title="Toggle Theme">🌙</button>
   <div class="container">
