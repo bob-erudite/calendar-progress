@@ -74,63 +74,43 @@
     <button onclick="checkLogin()">Login</button>
   </div>
 
-  <script>
-  
-      // Prevent inspect shortcuts
-    document.onkeydown = function (e) {
-      if (
-        e.keyCode === 123 ||
-        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
-        (e.ctrlKey && e.keyCode === 85)
-      ) {
-        return false;
-      }
-    };
 
-  
+  <script>
+  // 🔒 Disable right-click and inspect shortcuts
+  document.onkeydown = function (e) {
+    if (
+      e.keyCode === 123 || // F12
+      (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
+      (e.ctrlKey && e.keyCode === 85) // Ctrl+U
+    ) {
+      return false;
+    }
+  };
+
+  function togglePassword() {
+    const passwordInput = document.getElementById("password");
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorMessage = document.getElementById("errorMessage");
+
     const validUsername = "admin";
     const validPassword = "1234";
 
-    function togglePassword() {
-      const passwordInput = document.getElementById("password");
-      passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+    if (username === validUsername && password === validPassword) {
+      // Save login status
+      localStorage.setItem("loggedIn", "true");
+      localStorage.setItem("loginTime", Date.now().toString());
+      window.location.href = "cal.html"; // Redirect
+    } else {
+      errorMessage.textContent = "❌ Incorrect username or password!";
     }
-
-    function checkLogin() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const errorMessage = document.getElementById("errorMessage");
-
-      if (username === validUsername && password === validPassword) {
-        // Redirect to calendar
-        window.location.href = "cal.html";
-      } else {
-        errorMessage.textContent = "Incorrect username or password!";
-      }
-    }
-
-    // login.js
-
-document.getElementById("loginForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-
-  // Example login check
-  if (username === "admin" && password === "1234") {
-    localStorage.setItem("loggedIn", "true");
-    localStorage.setItem("loginTime", new Date().getTime());
-    window.location.href = "cal.html"; // redirect to calendar
-  } else {
-    alert("❌ Incorrect login details.");
-  }
-});
-
-
-  localStorage.setItem("loggedIn", "true");
-localStorage.setItem("loginTime", Date.now().toString());
-window.location.href = "cal.html"; // Redirect to the calendar
+  });
   </script>
 </body>
 </html>
