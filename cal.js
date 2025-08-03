@@ -1,4 +1,45 @@
 
+document.addEventListener('DOMContentLoaded', () => {
+  // Auto Save + Load Textarea
+  document.querySelectorAll('.day-card, .service-section').forEach((container, sectionIndex) => {
+    const textareas = container.querySelectorAll('textarea');
+    textareas.forEach((textarea, textareaIndex) => {
+      const key = `section_${sectionIndex}_textarea_${textareaIndex}`;
+      const saved = localStorage.getItem(key);
+      if (saved !== null) textarea.value = saved;
+      textarea.addEventListener('input', () => {
+        localStorage.setItem(key, textarea.value);
+      });
+    });
+
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach((checkbox, checkboxIndex) => {
+      const key = `section_${sectionIndex}_checkbox_${checkboxIndex}`;
+      const saved = localStorage.getItem(key);
+      if (saved !== null) checkbox.checked = saved === "true";
+      checkbox.addEventListener('change', () => {
+        localStorage.setItem(key, checkbox.checked);
+        updateProgress();
+      });
+    });
+  });
+
+  updateProgress(); // Initialize progress on load
+});
+
+function updateProgress() {
+  document.querySelectorAll(".service-section").forEach(section => {
+    const checkboxes = section.querySelectorAll("input[type='checkbox']");
+    const progress = section.querySelector(".progress-fill");
+
+    if (!progress || checkboxes.length === 0) return;
+
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const percent = (checkedCount / checkboxes.length) * 100;
+
+    progress.style.width = `${percent}%`;
+  });
+}
 
 
 
