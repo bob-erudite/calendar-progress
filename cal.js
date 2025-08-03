@@ -74,43 +74,90 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-document.querySelectorAll('.saveBtn').forEach(button => {
-  button.addEventListener('click', () => {
-    const section = button.getAttribute('data-section');
-    const card = button.closest('.day-card');
-    const inputs = card.querySelectorAll('input, textarea');
-    const data = [];
-    
-    inputs.forEach(input => {
-      if (input.type === 'checkbox') {
-        data.push({ type: 'checkbox', checked: input.checked });
-      } else {
-        data.push({ type: 'text', value: input.value });
-      }
-    });
-    
-    localStorage.setItem(section, JSON.stringify(data));
-    alert(`Saved: ${section}`);
-  });
-});
+document.addEventListener('DOMContentLoaded', function() {
+  // 1. AUTO-SAVE CONFIGURATION
+  const AUTO_SAVE_KEY = 'calendar-auto-save';
+  let saveTimer;
 
-// Load data for each section
-document.querySelectorAll('.saveBtn').forEach(button => {
-  const section = button.getAttribute('data-section');
-  const card = button.closest('.day-card');
-  const savedData = JSON.parse(localStorage.getItem(section));
+  // 2. INITIAL LOAD - Restore all saved data
+  const savedData = JSON.parse(localStorage.getItem(AUTO_SAVE_KEY)) || {};
   
-  if (savedData) {
-    const inputs = card.querySelectorAll('input, textarea');
-    inputs.forEach((input, i) => {
-      const item = savedData[i];
-      if (item.type === 'checkbox') {
-        input.checked = item.checked;
-      } else {
-        input.value = item.value;
-      }
-    });
+  document.querySelectorAll('.day-card').forEach(card => {
+    const cardId = card.id || 'default';
+    if (savedData[cardId]) {
+      // Restore checkboxes
+      card.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        const saved = savedData[cardId].find(item => item.id === checkbox.id);
+        if (saved) checkbox.checked = saved.value;
+      });
+      
+      // Restore textareas
+      card.querySelectorAll('textarea').forEach(textarea => {
+        const saved = savedData[cardId].find(item => item.id === textarea.id);
+        if (saved) {
+          textarea.value = saved.value;
+          autoExpand(textarea); // Resize to fit content
+        }
+      });
+    }
+  });
+
+  // 3. AUTO-EXPAND + AUTO-SAVE FUNCTIONALITY
+  function autoExpand(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
   }
+
+  document.querySelectorAll('textarea').forEach(textarea => {
+    // Initial resize
+    autoExpand(textarea);
+    
+    // Auto-expand on input
+    textarea.addEventListener('input', function() {
+      autoExpand(this);
+      scheduleSave(this.closest('.day-card'));
+    });
+  });
+
+  // 4. SAVE MECHANISM
+  function scheduleSave(card) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => saveCard(card), 1000);
+  }
+
+  function saveCard(card) {
+    const cardId = card.id || 'default';
+    const checkboxes = Array.from(card.querySelectorAll('input[type="checkbox"]')).map(cb => ({
+      id: cb.id,
+      value: cb.checked
+    }));
+    
+    const textareas = Array.from(card.querySelectorAll('textarea')).map(ta => ({
+      id: ta.id,
+      value: ta.value
+    }));
+    
+    const currentData = JSON.parse(localStorage.getItem(AUTO_SAVE_KEY)) || {};
+    currentData[cardId] = [...checkboxes, ...textareas];
+    
+    localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(currentData));
+    console.log('Auto-saved:', cardId);
+  }
+
+  // 5. MANUAL SAVE BUTTONS
+  document.querySelectorAll('.saveBtn').forEach(button => {
+    button.addEventListener('click', function() {
+      const card = this.closest('.day-card');
+      saveCard(card);
+      
+      // Visual feedback
+      const feedback = document.createElement('span');
+      feedback.className = 'save-feedback';
+      feedback.textContent = '✓ Saved';
+      this.parentNode.appendChild(feedback);
+      setTimeout(() => feedback.remove(), 2000);
+    });
+  });
 });
 
 // Export to PDF
