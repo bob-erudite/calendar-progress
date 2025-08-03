@@ -1,3 +1,61 @@
+document.querySelectorAll('.auto-expand').forEach(textarea => {
+    // Set initial height
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+    
+    textarea.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+    });
+  });
+  
+  
+  // Store original textarea dimensions
+const originalSizes = new WeakMap();
+
+function initAutoExpand() {
+  document.querySelectorAll('.auto-expand').forEach(textarea => {
+    // Save original size
+    originalSizes.set(textarea, {
+      width: textarea.style.width || '120px',
+      height: textarea.style.height || '40px'
+    });
+    
+    // Set initial size
+    resetTextarea(textarea);
+    
+    // Auto-expand on input
+    textarea.addEventListener('input', function() {
+      this.style.width = 'auto';
+      this.style.width = this.scrollWidth + 'px';
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
+    });
+  });
+  
+  // Hook into your existing reset button
+  document.getElementById('resetAll').addEventListener('click', function() {
+    document.querySelectorAll('.auto-expand').forEach(resetTextarea);
+  });
+}
+
+function resetTextarea(textarea) {
+  const original = originalSizes.get(textarea);
+  textarea.value = '';
+  textarea.style.width = original.width;
+  textarea.style.height = original.height;
+}
+
+// Initialize when ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAutoExpand);
+} else {
+  initAutoExpand();
+    }
+
+
+
+
 // ===== Theme Toggle Logic =====
 const themeToggleBtn = document.getElementById("themeToggle");
 
@@ -170,58 +228,4 @@ document.getElementById("showPassword").addEventListener("change", function() {
   passField.type = this.checked ? "text" : "password";
 });
 
-document.querySelectorAll('.auto-expand').forEach(textarea => {
-    // Set initial height
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
-    
-    textarea.addEventListener('input', function() {
-      this.style.height = 'auto';
-      this.style.height = (this.scrollHeight) + 'px';
-    });
-  });
-  
-  
-  // Store original textarea dimensions
-const originalSizes = new WeakMap();
-
-function initAutoExpand() {
-  document.querySelectorAll('.auto-expand').forEach(textarea => {
-    // Save original size
-    originalSizes.set(textarea, {
-      width: textarea.style.width || '120px',
-      height: textarea.style.height || '40px'
-    });
-    
-    // Set initial size
-    resetTextarea(textarea);
-    
-    // Auto-expand on input
-    textarea.addEventListener('input', function() {
-      this.style.width = 'auto';
-      this.style.width = this.scrollWidth + 'px';
-      this.style.height = 'auto';
-      this.style.height = this.scrollHeight + 'px';
-    });
-  });
-  
-  // Hook into your existing reset button
-  document.getElementById('resetAll').addEventListener('click', function() {
-    document.querySelectorAll('.auto-expand').forEach(resetTextarea);
-  });
-}
-
-function resetTextarea(textarea) {
-  const original = originalSizes.get(textarea);
-  textarea.value = '';
-  textarea.style.width = original.width;
-  textarea.style.height = original.height;
-}
-
-// Initialize when ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initAutoExpand);
-} else {
-  initAutoExpand();
-}
 
