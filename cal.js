@@ -221,121 +221,76 @@ document.getElementById("showPassword").addEventListener("change", function() {
   passField.type = this.checked ? "text" : "password";
 });
 
-// cal.js - Put this in your cal.js file
+// In cal.js - Replace your current code with this
 document.addEventListener('DOMContentLoaded', function() {
-  // 1. AUTO-SAVE SYSTEM
-  const STORAGE_KEY = 'calendar-data-v2';
-  let saveTimeout;
-  
-  // 2. INITIALIZE ALL TEXTAREAS
+  // 1. Clean up previous storage
+  localStorage.removeItem('calendar-data');
+  localStorage.removeItem('calendar-data-v2');
+  const STORAGE_KEY = 'calendar-data-v3';
+
+  // 2. Initialize textareas with unique IDs
+  let noteCounter = 0;
   document.querySelectorAll('.auto-expand').forEach(textarea => {
+    if (!textarea.id) {
+      textarea.id = `notes-${noteCounter++}`;
+    }
     // Auto-expand functionality
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + 'px';
-    
-    textarea.addEventListener('input', function() {
-      this.style.height = 'auto';
-      this.style.height = this.scrollHeight + 'px';
-      scheduleAutoSave();
-    });
   });
 
-  // 3. LOAD SAVED DATA
-  function loadAllData() {
-    const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (!savedData) return;
-    
-    // Restore checkboxes
-    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-      const key = getElementKey(checkbox);
-      if (savedData[key] !== undefined) {
-        checkbox.checked = savedData[key];
-      }
+  // 3. Improved save/load system
+  function saveAllData() {
+    const data = {};
+    document.querySelectorAll('input[type="checkbox"], textarea').forEach(el => {
+      data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
     });
-    
-    // Restore textareas
-    document.querySelectorAll('textarea').forEach(textarea => {
-      const key = getElementKey(textarea);
-      if (savedData[key] !== undefined) {
-        textarea.value = savedData[key];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function loadAllData() {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    Object.entries(saved).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      
+      if (el.type === 'checkbox') {
+        el.checked = value;
+      } else {
+        el.value = value;
         // Trigger resize
         setTimeout(() => {
-          textarea.style.height = 'auto';
-          textarea.style.height = textarea.scrollHeight + 'px';
+          el.style.height = 'auto';
+          el.style.height = el.scrollHeight + 'px';
         }, 10);
       }
     });
   }
 
-  // 4. SAVE FUNCTIONS
-  function scheduleAutoSave() {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(saveAllData, 1000);
-  }
-
-  function saveAllData() {
-    const dataToSave = {};
-    
-    // Save all checkboxes
-    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-      dataToSave[getElementKey(checkbox)] = checkbox.checked;
+  // 4. Event listeners
+  document.querySelectorAll('.auto-expand').forEach(textarea => {
+    textarea.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
+      debouncedSave();
     });
-    
-    // Save all textareas
-    document.querySelectorAll('textarea').forEach(textarea => {
-      dataToSave[getElementKey(textarea)] = textarea.value;
-    });
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-    console.log('Auto-saved all data');
-  }
+  });
 
-  // 5. HELPER FUNCTIONS
-  function getElementKey(element) {
-    // Create unique key based on element's position in DOM
-    const path = [];
-    let current = element;
-    
-    while (current && current !== document) {
-      const parent = current.parentNode;
-      if (parent) {
-        const index = Array.from(parent.children).indexOf(current);
-        path.unshift(index);
-      }
-      current = parent;
-    }
-    
-    return path.join('-');
-  }
+  // 5. Debounced auto-save
+  let saveTimer;
+  const debouncedSave = () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveAllData, 1000);
+  };
 
-  // 6. MANUAL SAVE BUTTON
-  document.querySelectorAll('.saveBtn').forEach(button => {
-    button.addEventListener('click', function() {
+  // 6. Manual save button
+  document.querySelectorAll('.saveBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
       saveAllData();
-      showSaveFeedback(this);
+      alert('Saved successfully!');
     });
   });
 
-  // 7. RESET BUTTON
-  document.getElementById('resetAll').addEventListener('click', function() {
-    if (confirm('Are you sure you want to reset ALL data?')) {
-      localStorage.removeItem(STORAGE_KEY);
-      location.reload(); // Refresh to clear all inputs
-    }
-  });
-
-  // 8. VISUAL FEEDBACK
-  function showSaveFeedback(button) {
-    const feedback = document.createElement('span');
-    feedback.className = 'save-feedback';
-    feedback.textContent = '✓ Saved';
-    button.parentNode.appendChild(feedback);
-    setTimeout(() => feedback.remove(), 2000);
-  }
-
-  // Initial load
+  // 7. Initial load
   loadAllData();
 });
-
-
-
